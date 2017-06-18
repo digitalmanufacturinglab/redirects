@@ -4,16 +4,22 @@ ZXING4P zxing4p;
 // You need to import the PDF library to get access to the PageTize persets
 import processing.pdf.*;
 
+
+int start_id = 1;
+String type = "experiments";
+//String type = "database";
+
 PImage  QRCode;
 
 PrintWriter output;
-String destination_url = "https://128.199.174.133/database.php?mode=view&id=";
-String origin_url = "http://digitalmanufacturinglab.github.io/redirects/";
+String database_url = "https://128.199.174.133/database.php?mode=view&id=";
+String experiments_url = "https://128.199.174.133/experiments.php?mode=view&id=";
+String origin_url = "https://digitalmanufacturinglab.github.io/redirects/";
+
 int amount = 10;
 int cell_height = 27;
 int cell_width = 30;
 int cell_gutter = 3;
-int start_id = 1;
 
 void settings() {
   size(mmToPix(210), mmToPix(297));
@@ -35,25 +41,25 @@ void draw() {
 
   /*
   //line(10, 150, 500, 50);
-  line(left, top, right, top);
-  line(left, top, left, bottom);
-  line(right, top, right, bottom);
-  line(left, bottom, right, bottom);
-
-  //rows
-  for (int i=1; i<10; i++) {
-    line(left, top+(i*mmToPix(cell_height)), right, top+(i*mmToPix(cell_height)));
-  }
-
-  //columns end
-  for (int j=1; j<6; j++) {
-    line(left+(mmToPix(cell_width)*j)+(mmToPix(cell_gutter)*(j-1)), top, left+(mmToPix(cell_width)*j)+(mmToPix(cell_gutter)*(j-1)), bottom);
-  }
-
-  //columns start
-  for (int k=1; k<6; k++) {
-    line(left+(mmToPix(cell_width)*k) + (mmToPix(cell_gutter)*k), top, left+(mmToPix(cell_width)*k) + (mmToPix(cell_gutter)*k), bottom);
-  }*/
+   line(left, top, right, top);
+   line(left, top, left, bottom);
+   line(right, top, right, bottom);
+   line(left, bottom, right, bottom);
+   
+   //rows
+   for (int i=1; i<10; i++) {
+   line(left, top+(i*mmToPix(cell_height)), right, top+(i*mmToPix(cell_height)));
+   }
+   
+   //columns end
+   for (int j=1; j<6; j++) {
+   line(left+(mmToPix(cell_width)*j)+(mmToPix(cell_gutter)*(j-1)), top, left+(mmToPix(cell_width)*j)+(mmToPix(cell_gutter)*(j-1)), bottom);
+   }
+   
+   //columns start
+   for (int k=1; k<6; k++) {
+   line(left+(mmToPix(cell_width)*k) + (mmToPix(cell_gutter)*k), top, left+(mmToPix(cell_width)*k) + (mmToPix(cell_gutter)*k), bottom);
+   }*/
 
   int current_id = start_id;
 
@@ -67,7 +73,7 @@ void draw() {
     }
   }
 
-  saveFrame("../QR_" + start_id + "_"+ (current_id-1) +".png");
+  saveFrame("../QR_" + type + "_" + start_id + "_"+ (current_id-1) +".png");
   exit();
 }
 
@@ -79,7 +85,7 @@ int mmToPix(int input_mm) {
 
 void generateQRcode(int myid, int x, int y) {
   //Generate QR code
-  String qrcode_url = origin_url + "link" + myid + ".html";
+  String qrcode_url = origin_url + type + "_" + myid + ".html";
   QRCode = zxing4p.generateQRCode(qrcode_url, mmToPix(cell_width), mmToPix(cell_width));
 
   PImage c = QRCode.get(9, 9, mmToPix(cell_width)-18, mmToPix(cell_width)-18);
@@ -92,13 +98,25 @@ void generateQRcode(int myid, int x, int y) {
   textSize(12);
   fill(0, 0, 0);
   textAlign(CENTER, CENTER);
-  text(myid, 0, 39); 
+  if (type == "database") {
+    text("db " + myid, 0, 39);
+  } else if (type == "experiments") {
+    text("exp " + myid, 0, 39);
+  } 
   popMatrix();
 }
 
 void generateHTML(int myid) {
-  output = createWriter("../link" + myid + ".html"); 
-  String html_url = destination_url + myid;
+  String html_url = "";
+
+  if (type == "database") {
+    html_url = database_url + myid;
+  } else if (type == "experiments") {
+    html_url = experiments_url + myid;
+  }
+
+  output = createWriter("../" + type + "_" + myid + ".html");
+
   output.print("<!DOCTYPE html>\n");
   output.print("<html>\n<head>\n");
   output.print("<script type=\"text/javascript\">\n");
